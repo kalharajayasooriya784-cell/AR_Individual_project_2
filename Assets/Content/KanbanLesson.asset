@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6653ef5d86c7abb41b8c7cb3f6f286e0, type: 3}
+  m_Name: KanbanLesson
+  m_EditorClassIdentifier: Assembly-CSharp::Lesson
+  title: Kanban
+  linkedModule: Computer_Graphics
+  codeLines:
+  - Visualize the workflow
+  - Limit work in progress (WIP)
+  - Pull work when ready
+  - Manage the flow
+  - Improve continuously
+  steps:
+  - highlightLine: -1
+    action: none
+    value: 0
+    param: 
+    explanation: Kanban is another Agile method. Work flows continuously across a
+      board, with no fixed sprints. The board makes the workflow visible.
+    narration: {fileID: 0}
+  - highlightLine: 0
+    action: "addcard\t"
+    value: 0
+    param: K1|Fix login bug;K2|Update logo;K3|Add search;K4|Write tests;K5|Improve
+      speed
+    explanation: 'Visualize the workflow: every work item is a card and each column
+      is a stage. The team can see all work at a glance.'
+    narration: {fileID: 0}
+  - highlightLine: 1
+    action: move
+    value: 0
+    param: K1>1;K2>1;K3>1
+    explanation: 'Limit WIP: In Progress allows at most 3 cards at once. K1, K2 and
+      K3 are started and the column is now full.'
+    narration: {fileID: 0}
+  - highlightLine: 1
+    action: trymove
+    value: 0
+    param: K4>1
+    explanation: 'K4 wants to start, but the WIP limit blocks it. Finish work before
+      starting more: stop starting, start finishing'
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: move
+    value: 0
+    param: K1>2
+    explanation: 'Pull work when ready: K1 is finished and moves on to Review. A
+      free place opens up in In Progress.'
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: move
+    value: 0
+    param: K4>1
+    explanation: Now K4 can be pulled into the free place. Work is pulled by the
+      team, not pushed onto it.
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: move
+    value: 0
+    param: K1>3;K2>2
+    explanation: 'Manage the flow: K1 is Done and K2 moves into Review. The team
+      watches how smoothly cards move across the board.'
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: "trymove\t"
+    value: 0
+    param: K3>2;K4>2
+    explanation: Review allows only 2 cards. K3 moves in, but K4 must wait. A blocked
+      column shows a bottleneck in the process.
+    narration: {fileID: 0}
+  - highlightLine: 4
+    action: focus
+    value: -1
+    param: 
+    explanation: 'Improve continuously: the team looks for bottlenecks and adjusts
+      WIP limits or the process. There is no sprint end; the flow never stops.'
+    narration: {fileID: 0}

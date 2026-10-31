@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
-// Scrum board: columns, story cards and a burndown chart.
+// Board with columns and cards. Used for Scrum (sprint + burndown) and Kanban (WIP limits).
 // Actions:
-//   addcard    param "id|title|points;id|title|points"   value = column
-//   move       param "S1>1;S2>2"                          (id>column)
-//   day        param = optional moves, then adds a burndown bar
+//   addcard    param "id|title|points;id|title"   value = column     (points are optional)
+//   move       param "S1>1;S2>2"                   (id>column)
+//   trymove    like move, but reports a blocked card (WIP limit) to the learner
+//   day        param = optional moves, then adds a burndown bar (Scrum)
 //   focus      value = column to highlight (-1 = none)
 //   newsprint  param = optional moves (Done cards leave, burndown restarts)
 public class BoardVisualizer : MonoBehaviour, IVisualizer
@@ -15,7 +17,7 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
     [Header("Prefabs")]
     [SerializeField] GameObject columnPrefab;   // children: "Tray" (with Inspectable), "Title"
     [SerializeField] GameObject cardPrefab;     // children: "Body" (with Inspectable), "Label"
-    [SerializeField] GameObject barPrefab;      // children: "Body", "Label"
+    [SerializeField] GameObject barPrefab;      // Scrum only. children: "Body", "Label"
 
     [Header("Board")]
     [SerializeField] string[] columnNames = { "Product Backlog", "Sprint Backlog", "In Progress", "Done" };
@@ -23,12 +25,17 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
     [SerializeField] float columnSpacing = 0.24f;
     [SerializeField] float cardSpacing = 0.09f;
     [SerializeField] int maxCardsPerColumn = 5;
-    [SerializeField] int sprintCapacity = 10;
+    [SerializeField] bool showPoints = true;
 
-    [Header("Burndown chart")]
+    [Header("Scrum")]
+    [SerializeField] int sprintCapacity = 10;
     [SerializeField] Vector3 chartOrigin = new Vector3(-0.3f, 0f, 0.45f);
     [SerializeField] float barSpacing = 0.07f;
     [SerializeField] float barHeightPerPoint = 0.012f;
+
+    [Header("Kanban")]
+    [SerializeField] bool kanbanMode = false;
+    [SerializeField] int[] wipLimits;           // one number per column, 0 = no limit
 
     [Header("UI (optional)")]
     [SerializeField] TMP_Text statusText;
@@ -36,12 +43,14 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
     [Header("Colours")]
     [SerializeField] Color trayIdle = new Color(0.93f, 0.94f, 0.95f);
     [SerializeField] Color trayFocus = new Color(1.00f, 0.88f, 0.51f);
-    [SerializeField] Color[] cardColors =
+    [SerializeField] Color trayBlocked = new Color(0.56f, 0.14f, 0.67f);
+    [SerializeField]
+    Color[] cardColors =
     {
-        new Color(0.69f, 0.75f, 0.78f),   // Product Backlog
-        new Color(0.39f, 0.71f, 0.96f),   // Sprint Backlog
-        new Color(0.94f, 0.42f, 0.00f),   // In Progress
-        new Color(0.00f, 0.54f, 0.48f)    // Done
+        new Color(0.69f, 0.75f, 0.78f),
+        new Color(0.39f, 0.71f, 0.96f),
+        new Color(0.94f, 0.42f, 0.00f),
+        new Color(0.00f, 0.54f, 0.48f)
     };
 
     class Card
@@ -61,6 +70,9 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
     Renderer[] trays;
     bool built;
     Coroutine statusRoutine;
+    int focusCol = -1;
+    int blockedColumn = -1;
+    string pendingMessage;
 
     void OnEnable()
     {
@@ -90,6 +102,9 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
         if (step == null) return;
         Build();
 
+        blockedColumn = -1;
+        pendingMessage = null;
+
         switch ((step.action ?? "").ToLowerInvariant())
         {
             case "addcard":
@@ -98,19 +113,31 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
                 break;
 
             case "move":
-            {
-                int t = MoveCards(step.param);
-                if (t >= 0) SetFocus(t);
-                break;
-            }
+                {
+                    int t = MoveCards(step.param);
+                    if (t >= 0) SetFocus(t);
+                    break;
+                }
+
+            case "trymove":
+                {
+                    int t = MoveCards(step.param);
+                    if (t >= 0) SetFocus(t);
+                    if (blockedColumn >= 0)
+                    {
+                        pendingMessage = WipMessage(blockedColumn);
+                        StartCoroutine(FlashTray(blockedColumn));
+                    }
+                    break;
+                }
 
             case "day":
-            {
-                int t = MoveCards(step.param);
-                if (t >= 0) SetFocus(t);
-                AddBar();
-                break;
-            }
+                {
+                    int t = MoveCards(step.param);
+                    if (t >= 0) SetFocus(t);
+                    AddBar();
+                    break;
+                }
 
             case "focus":
                 SetFocus(step.value);
@@ -120,7 +147,9 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
                 NewSprint(step.param);
                 break;
         }
+
         RefreshStatus();
+        if (pendingMessage != null) ShowStatus(pendingMessage);
     }
 
     // ---------- Free-play (wire the two buttons in the Inspector) ----------
@@ -133,7 +162,7 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
         var card = cards.Find(c => c.info != null && c.info == Inspectable.Selected);
         if (card == null)
         {
-            ShowStatus("Tap a story card first.");
+            ShowStatus("Tap a card first.");
             return;
         }
 
@@ -141,8 +170,17 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
         if (target < 0 || target >= columns.Length) return;
         if (columns[target].Count >= maxCardsPerColumn) return;
 
-        // Sprint Planning rule: a story entering the sprint must fit the team's capacity
-        if (card.column == 0 && target == 1 && SprintLoad() + card.points > sprintCapacity)
+        // Kanban rule: a column cannot hold more cards than its WIP limit
+        if (WipFull(target))
+        {
+            ShowStatus(WipMessage(target));
+            StartCoroutine(FlashTray(target));
+            return;
+        }
+
+        // Scrum rule: a story entering the sprint must fit the team's capacity
+        if (!kanbanMode && card.column == 0 && target == 1 &&
+            SprintLoad() + card.points > sprintCapacity)
         {
             ShowStatus("Over capacity! Max " + sprintCapacity + " points per sprint.");
             return;
@@ -171,8 +209,10 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
             go.transform.localPosition = new Vector3(ColumnX(c), 0f, 0f);
             go.transform.localRotation = Quaternion.identity;
 
+            int limit = WipLimit(c);
             var title = go.GetComponentInChildren<TMP_Text>();
-            if (title != null) title.text = columnNames[c];
+            if (title != null)
+                title.text = columnNames[c] + (limit > 0 ? "\n(WIP limit " + limit + ")" : "");
 
             var info = go.GetComponentInChildren<Inspectable>();
             if (info != null)
@@ -191,6 +231,20 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
     Vector3 SlotPos(int col, int index) =>
         new Vector3(ColumnX(col), 0.01f, 0.18f - index * cardSpacing);
 
+    // ---------- WIP limits ----------
+
+    int WipLimit(int col) =>
+        (wipLimits != null && col < wipLimits.Length) ? wipLimits[col] : 0;
+
+    bool WipFull(int col)
+    {
+        int limit = WipLimit(col);
+        return limit > 0 && columns[col].Count >= limit;
+    }
+
+    string WipMessage(int col) =>
+        "WIP limit reached for " + columnNames[col] + " (max " + WipLimit(col) + "). Finish work first.";
+
     // ---------- Cards ----------
 
     void AddCards(string param, int column)
@@ -201,10 +255,11 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
         foreach (var item in param.Split(';'))
         {
             var parts = item.Split('|');
-            if (parts.Length < 3) continue;
+            if (parts.Length < 2) continue;
             if (columns[column].Count >= maxCardsPerColumn) break;
 
-            if (!int.TryParse(parts[2].Trim(), out int points)) points = 1;
+            int points = 1;
+            if (parts.Length >= 3) int.TryParse(parts[2].Trim(), out points);
 
             var go = Instantiate(cardPrefab, transform);
             go.transform.localRotation = Quaternion.identity;
@@ -248,6 +303,13 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
             var card = cards.Find(c => c.id == id);
             if (card == null || columns[target].Count >= maxCardsPerColumn) continue;
 
+            // WIP limit: the card stays where it is
+            if (card.column != target && WipFull(target))
+            {
+                blockedColumn = target;
+                continue;
+            }
+
             touched.Add(card.column);
             columns[card.column].Remove(card);
             card.column = target;
@@ -278,7 +340,7 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
     void Refresh(Card card)
     {
         if (card.label != null)
-            card.label.text = card.id + " (" + card.points + ")";
+            card.label.text = showPoints ? card.id + " (" + card.points + ")" : card.id;
 
         if (card.body != null)
             card.body.material.color = cardColors[Mathf.Min(card.column, cardColors.Length - 1)];
@@ -286,12 +348,13 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
         if (card.info != null)
         {
             card.info.title = card.id + ": " + card.title;
-            card.info.description = "Story points: " + card.points +
-                                    ". Status: " + columnNames[card.column] + ".";
+            card.info.description =
+                (showPoints ? "Story points: " + card.points + ". " : "") +
+                "Status: " + columnNames[card.column] + ".";
         }
     }
 
-    // ---------- Burndown ----------
+    // ---------- Scrum: burndown ----------
 
     int SprintLoad()      // everything committed to the sprint (Sprint Backlog, In Progress, Done)
     {
@@ -312,6 +375,7 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
 
     void AddBar()
     {
+        if (barPrefab == null) return;
         int remaining = RemainingPoints();
 
         var bar = Instantiate(barPrefab, transform);
@@ -368,9 +432,18 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
 
     void SetFocus(int col)
     {
+        focusCol = col;
         for (int i = 0; i < trays.Length; i++)
             if (trays[i] != null)
                 trays[i].material.color = i == col ? trayFocus : trayIdle;
+    }
+
+    IEnumerator FlashTray(int col)
+    {
+        if (col < 0 || col >= trays.Length || trays[col] == null) yield break;
+        trays[col].material.color = trayBlocked;
+        yield return new WaitForSeconds(0.8f);
+        SetFocus(focusCol);
     }
 
     void RefreshStatus()
@@ -381,7 +454,25 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
             StopCoroutine(statusRoutine);
             statusRoutine = null;
         }
-        statusText.text = "Sprint load: " + SprintLoad() + " / " + sprintCapacity + " points";
+
+        if (kanbanMode)
+        {
+            var sb = new StringBuilder("WIP  ");
+            bool first = true;
+            for (int c = 0; c < columns.Length; c++)
+            {
+                int limit = WipLimit(c);
+                if (limit <= 0) continue;
+                if (!first) sb.Append("  |  ");
+                sb.Append(columnNames[c]).Append(' ').Append(columns[c].Count).Append('/').Append(limit);
+                first = false;
+            }
+            statusText.text = sb.ToString();
+        }
+        else
+        {
+            statusText.text = "Sprint load: " + SprintLoad() + " / " + sprintCapacity + " points";
+        }
     }
 
     void ShowStatus(string message)
@@ -394,7 +485,7 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
 
     IEnumerator RestoreStatus()
     {
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(3f);
         statusRoutine = null;
         RefreshStatus();
     }
@@ -432,3 +523,4 @@ public class BoardVisualizer : MonoBehaviour, IVisualizer
         if (t != null) t.localPosition = to;
     }
 }
+
