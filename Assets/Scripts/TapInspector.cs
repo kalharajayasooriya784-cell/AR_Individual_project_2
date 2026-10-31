@@ -32,8 +32,12 @@ public class TapInspector : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, 10f))
         {
             var item = hit.collider.GetComponentInParent<Inspectable>();
-            if (item != null && infoText != null)
-                infoText.text = "<b>" + item.title + "</b>\n" + item.description;
+            if (item != null)
+            {
+                Inspectable.Selected = item;
+                if (infoText != null)
+                    infoText.text = "<b>" + item.title + "</b>\n" + item.description;
+            }
         }
     }
 }

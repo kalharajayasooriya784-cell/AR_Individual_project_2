@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6653ef5d86c7abb41b8c7cb3f6f286e0, type: 3}
+  m_Name: ScrumLesson
+  m_EditorClassIdentifier: Assembly-CSharp::Lesson
+  title: Scrum Sprint
+  linkedModule: Computer_Graphics
+  codeLines:
+  - Product Backlog
+  - Sprint Planning
+  - Daily Scrum (during the sprint)
+  - Sprint Review
+  - Retrospective
+  steps:
+  - highlightLine: -1
+    action: none
+    value: 0
+    param: 
+    explanation: Agile builds software in short cycles called sprints. Each sprint
+      delivers a working piece of the product. This board shows one Scrum team.
+    narration: {fileID: 0}
+  - highlightLine: 0
+    action: addcart
+    value: 0
+    param: "S1|Login page|3;S2|Profile page|2;S3|Search|5;S4|Payment|8;S5|Notifications|3\tThe
+      Product"
+    explanation: The Product Owner keeps a prioritised Product Backlog of user stories.
+      The number is the story-point estimate.
+    narration: {fileID: 0}
+  - highlightLine: 1
+    action: move
+    value: 0
+    param: S1>1;S2>1;S3>1
+    explanation: 'Sprint Planning: the team pulls stories into the Sprint Backlog.
+      Capacity is 10 points, so S1 + S2 + S3 = 10 fits. S4 and S5 wait.'
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: day
+    value: 0
+    param: S1>2
+    explanation: 'Day 1, Daily Scrum: S1 moves to In Progress. 10 points remain,
+      so the burndown bar is at 10.'
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: day
+    value: 0
+    param: S1>3;S2>2
+    explanation: 'Day 2: S1 is Done and S2 starts. 7 points remain'
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: day
+    value: 0
+    param: S2>3;S3>2
+    explanation: 'Day 3: S2 is Done and S3 starts. 5 points remain.'
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: day
+    value: 0
+    param: S3>3
+    explanation: 'Day 4: S3 is Done. 0 points remain: the sprint goal is met.'
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: focus
+    value: 3
+    param: 
+    explanation: 'Sprint Review: the team demonstrates the Done stories (the increment)
+      to stakeholders and collects feedback.'
+    narration: {fileID: 0}
+  - highlightLine: 4
+    action: focus
+    value: -1
+    param: 
+    explanation: 'Retrospective: the team inspects its own way of working and agrees
+      on one improvement for the next sprint.'
+    narration: {fileID: 0}
+  - highlightLine: 1
+    action: "newsprint\t"
+    value: 0
+    param: S4>1
+    explanation: A new sprint starts. Shipped stories leave the board and the burndown
+      restarts. S4 (8 points) fits the capacity; S5 (3) would exceed 10, so it waits.
+    narration: {fileID: 0}
