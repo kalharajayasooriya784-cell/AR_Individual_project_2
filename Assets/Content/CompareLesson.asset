@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6653ef5d86c7abb41b8c7cb3f6f286e0, type: 3}
+  m_Name: CompareLesson
+  m_EditorClassIdentifier: Assembly-CSharp::Lesson
+  title: Waterfall VS  Agile
+  linkedModule: Computer_Graphics
+  codeLines:
+  - Waterfall plan
+  - Agile plan
+  - Time passes
+  - Change request
+  - Result
+  steps:
+  - highlightLine: -1
+    action: none
+    value: 0
+    param: 
+    explanation: Two teams build the same product. The WATERFALL lane and the AGILE
+      lane share one time axis in weeks. Walk around the timeline and compare them
+    narration: {fileID: 0}
+  - highlightLine: 0
+    action: add
+    value: 0
+    param: S|A|Sprint 1|0|2;S|A|Sprint 2|2|4;S|A|Sprint 3|4|6;S|A|Sprint 4|6|8;S|A|Sprint
+      5|8|10;S|A|Sprint 6|10|12;R|A|2;R|A|4;R|A|6;R|A|8;R|A|10;R|A|12
+    explanation: 'Waterfall plans every phase up front: 12 weeks and a single release
+      at the end. The customer sees working software only at week 12.'
+    narration: {fileID: 0}
+  - highlightLine: 1
+    action: add
+    value: 0
+    param: S|A|Sprint 1|0|2;S|A|Sprint 2|2|4;S|A|Sprint 3|4|6;S|A|Sprint 4|6|8;S|A|Sprint
+      5|8|10;S|A|Sprint 6|10|12;R|A|2;R|A|4;R|A|6;R|A|8;R|A|10;R|A|12
+    explanation: Agile plans six 2-week sprints. Every sprint ends with a release
+      of working software, so the customer sees progress every 2 weeks.
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: now
+    value: 4
+    param: 
+    explanation: 'Week 4: Agile has already delivered 2 increments. Waterfall is
+      still designing and starting to build, with nothing to show yet.'
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: now
+    value: 6
+    param: 
+    explanation: 'Week 6: Agile has delivered 3 increments. Waterfall is halfway
+      through implementation.'
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: add
+    value: 0
+    param: C|6;X|W|Implementation;X|W|Testing;X|W|Deployment;XR|W|12;S|W|Implementation
+      (part 1)|4|6;S|W|Re-do Req.|6|7|rework;S|W|Re-do Design|7|8|rework;S|W|Implementation
+      (resume)|8|13;S|W|Testing|13|15;S|W|Deployment|15|17;R|W|17;X|A|Sprint 4;S|A|Sprint
+      4 + change|6|8|change
+    explanation: 'Week 6: the customer changes a requirement! Waterfall must go back
+      and redo Requirements and Design, so its release moves from week 12 to week
+      17. Agile swaps the change in for a lower-priority story and keeps its dates.'
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: now
+    value: 8
+    param: 
+    explanation: 'Week 8: Agile ships Sprint 4 including the change. Waterfall has
+      only just finished redoing its requirements and design'
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: now
+    value: 12
+    param: 
+    explanation: 'Week 12: Agile has delivered 6 working increments and the finished
+      product. Waterfall is still implementing, and the customer has seen nothing.'
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: now
+    value: 17
+    param: 
+    explanation: 'Week 17: Waterfall finally releases, 5 weeks late. The customer
+      sees working software only now.'
+    narration: {fileID: 0}
+  - highlightLine: 4
+    action: none
+    value: 0
+    param: 
+    explanation: 'Agile delivered early and absorbed the change. Trade-off: Agile
+      needs an involved customer and flexible scope, while Waterfall suits fixed,
+      well-understood requirements.'
+    narration: {fileID: 0}
