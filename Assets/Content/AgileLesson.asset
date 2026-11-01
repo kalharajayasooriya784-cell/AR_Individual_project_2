@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6653ef5d86c7abb41b8c7cb3f6f286e0, type: 3}
+  m_Name: AgileLesson
+  m_EditorClassIdentifier: Assembly-CSharp::Lesson
+  title: Agile
+  linkedModule: Computer_Graphics
+  codeLines:
+  - People over process
+  - Working software over documents
+  - Customer collaboration over contracts
+  - Responding to change over a plan
+  steps:
+  - highlightLine: -1
+    action: none
+    value: 0
+    param: 
+    explanation: Responding to change over a plan
+    narration: {fileID: 0}
+  - highlightLine: 0
+    action: goto
+    value: 0
+    param: 
+    explanation: 'People over process: conversations, trust and teamwork solve problems
+      faster than strict procedures and tools.'
+    narration: {fileID: 0}
+  - highlightLine: 1
+    action: goto
+    value: 1
+    param: 
+    explanation: 'Working software over documents: the best proof of progress is
+      software that works. Documents still matter, but only as much as they help.'
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: goto
+    value: 2
+    param: 
+    explanation: 'Customer collaboration over contracts: the customer is involved
+      throughout, not only when the contract is signed'
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: goto
+    value: 3
+    param: 
+    explanation: "Responding to change over a plan: a plan is a guide. The team adjusts
+      it when the customer\u2019s needs change."
+    narration: {fileID: 0}
+  - highlightLine: -1
+    action: none
+    value: 0
+    param: 
+    explanation: 'Compare: Waterfall puts more weight on detailed plans and documents
+      up front. Both can be right, depending on how well the requirements are known.'
+    narration: {fileID: 0}
+  - highlightLine: -1
+    action: none
+    value: 0
+    param: 
+    explanation: Agile is a way of thinking. Scrum and Kanban are two ways to put
+      these four values into practice.
+    narration: {fileID: 0}
