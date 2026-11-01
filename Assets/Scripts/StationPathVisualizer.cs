@@ -21,10 +21,10 @@ public class StationPathVisualizer : MonoBehaviour, IVisualizer
     [SerializeField] float tokenHeight = 0.1f;
 
     [Header("Colours")]
-    [SerializeField] Color idleColor   = new Color(0.69f, 0.75f, 0.78f);
+    [SerializeField] Color idleColor = new Color(0.69f, 0.75f, 0.78f);
     [SerializeField] Color activeColor = new Color(0.94f, 0.42f, 0.00f);
-    [SerializeField] Color doneColor   = new Color(0.00f, 0.54f, 0.48f);
-    [SerializeField] Color failColor   = new Color(0.56f, 0.14f, 0.67f);
+    [SerializeField] Color doneColor = new Color(0.00f, 0.54f, 0.48f);
+    [SerializeField] Color failColor = new Color(0.56f, 0.14f, 0.67f);
 
     class StationView
     {
@@ -35,6 +35,7 @@ public class StationPathVisualizer : MonoBehaviour, IVisualizer
     readonly List<StationView> stations = new List<StationView>();
     bool built;
     int current = -1;
+    bool failed;
     Coroutine moveRoutine;
 
     void OnEnable()
@@ -51,6 +52,7 @@ public class StationPathVisualizer : MonoBehaviour, IVisualizer
         moveRoutine = null;
         Build();
         current = -1;
+        failed = false;
         SetProgress(-1);
         if (token != null) token.localPosition = TokenPos(-1);
     }
@@ -69,7 +71,20 @@ public class StationPathVisualizer : MonoBehaviour, IVisualizer
 
     // ---------- Free-play buttons (wire in Inspector) ----------
 
-    public void AdvanceToken() => MoveTo(Mathf.Min(current + 1, stations.Count - 1));
+    public void AdvanceToken()
+    {
+        if (failed)                       // a failed stage stops the pipeline: fix, commit again, re-run
+        {
+            MoveTo(0);
+            return;
+        }
+        MoveTo(Mathf.Min(current + 1, stations.Count - 1));
+    }
+
+    public void FailCurrent()             // make the current stage fail (CI/CD scene)
+    {
+        if (current >= 0) Fail(current);
+    }
 
     public void ChangeRequest()
     {
@@ -123,6 +138,7 @@ public class StationPathVisualizer : MonoBehaviour, IVisualizer
         if (stations.Count == 0) return;
         index = Mathf.Clamp(index, 0, stations.Count - 1);
         current = index;
+        failed = false;
         SetProgress(index);
 
         if (token != null)
@@ -139,6 +155,7 @@ public class StationPathVisualizer : MonoBehaviour, IVisualizer
         index = Mathf.Clamp(index, 0, stations.Count - 1);
         if (stations[index].pedestal != null)
             stations[index].pedestal.material.color = failColor;
+        failed = true;
     }
 
     void SetProgress(int active)

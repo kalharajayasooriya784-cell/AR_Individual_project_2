@@ -182,7 +182,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c6ea688d46e46142b18e3df2fe4a33a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StepController
-  lesson: {fileID: 11400000, guid: 661b416fdda109140941c94c809bc68e, type: 2}
+  lesson: {fileID: 11400000, guid: 55f09c03e166ede469416c8d90645fbc, type: 2}
   visualizerBehaviour: {fileID: 0}
 --- !u!114 &22871961
 MonoBehaviour:

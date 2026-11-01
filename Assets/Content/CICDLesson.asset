@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6653ef5d86c7abb41b8c7cb3f6f286e0, type: 3}
+  m_Name: CICDLesson
+  m_EditorClassIdentifier: Assembly-CSharp::Lesson
+  title: CI/CD Pipeline
+  linkedModule: Computer_Graphics
+  codeLines:
+  - Commit
+  - Build
+  - Test
+  - Deploy
+  - Monitor
+  steps:
+  - highlightLine: -1
+    action: none
+    value: 0
+    param: 
+    explanation: "CI/CD automates the road from a developer\u2019s code to the users.
+      Every change travels through a pipeline of automatic stages. It lets Agile
+      teams release small changes often and safely"
+    narration: {fileID: 0}
+  - highlightLine: 0
+    action: goto
+    value: 0
+    param: 
+    explanation: 'Commit: a developer pushes a small change to a shared repository.
+      This starts the pipeline automatically.'
+    narration: {fileID: 0}
+  - highlightLine: 1
+    action: goto
+    value: 0
+    param: 
+    explanation: 'Build: a server compiles the code and packages it. No one has to
+      do it by hand.'
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: goto
+    value: 0
+    param: 
+    explanation: 'Test: automated tests check the change. Commit, build and test
+      together make up Continuous Integration (CI).'
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: goto
+    value: 0
+    param: 
+    explanation: 'Deploy: a change that passes every test is released to users. This
+      is the CD part: Continuous Delivery or Deployment.'
+    narration: {fileID: 0}
+  - highlightLine: 4
+    action: goto
+    value: 0
+    param: 
+    explanation: 'Monitor: the team watches the live system. What it learns feeds
+      the next change.'
+    narration: {fileID: 0}
+  - highlightLine: 0
+    action: back
+    value: 0
+    param: 
+    explanation: Later, a developer commits another small change. The pipeline starts
+      again from the beginning.
+    narration: {fileID: 0}
+  - highlightLine: 1
+    action: goto
+    value: 0
+    param: 
+    explanation: Build runs again, automatically.
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: fail
+    value: 0
+    param: 
+    explanation: A test fails! The pipeline stops here and the team is alerted. The
+      faulty change never reaches the users.
+    narration: {fileID: 0}
+  - highlightLine: 0
+    action: back
+    value: 0
+    param: 
+    explanation: The developer fixes the bug and commits again. The pipeline restarts.
+    narration: {fileID: 0}
+  - highlightLine: 2
+    action: goto
+    value: 2
+    param: 
+    explanation: This time all the tests pass.
+    narration: {fileID: 0}
+  - highlightLine: 3
+    action: goto
+    value: 3
+    param: 
+    explanation: The fixed change is deployed. Small, frequent releases with automatic
+      checks make problems cheap to find and fix.
+    narration: {fileID: 0}
